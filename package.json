@@ -1,0 +1,32 @@
+{
+  "name": "@inhanbyeol/nestjs-prisma-cli",
+  "version": "1.0.0",
+  "main": "dist/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:dev": "tsc-watch --onSuccess \"node dist/main.js\"",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "inhanbyeol",
+  "license": "ISC",
+  "description": "",
+  "bin": {
+    "npc": "dist/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/inhanbyeol94/nestjs-prisma-cli"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.2",
+    "prettier": "^3.3.1",
+    "ts-node": "^10.9.2",
+    "tsc-watch": "^6.2.0",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "dayjs": "^1.11.11"
+  }
+}

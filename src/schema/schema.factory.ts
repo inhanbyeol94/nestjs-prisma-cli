@@ -107,7 +107,7 @@ export class SchemaFactory {
         this.schemaList = [];
 
         /** 스키마 정보 추출 */
-        for (const schemaFile of this.schemaModelFiles) {
+        for (const schemaFile of [...this.schemaModelFiles, ...this.schemaInfoModelFiles]) {
             this.schemaList.push(this.export(schemaFile));
         }
 

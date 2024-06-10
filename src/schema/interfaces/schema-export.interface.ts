@@ -7,6 +7,9 @@ export interface ISchemaExport {
     /** 모델 설명 */
     description: string;
 
+    /** 소프트 삭제 여부 */
+    isDeletedAt: boolean;
+
     fields: ISchemaFieldExport[];
 
     // joins?: {

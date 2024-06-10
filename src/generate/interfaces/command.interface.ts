@@ -4,4 +4,5 @@ export interface ICommand {
     options?: string[];
     layer?: string | null;
     name?: string | null;
+    schemaFileName?: string | null;
 }

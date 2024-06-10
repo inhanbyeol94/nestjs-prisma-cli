@@ -16,6 +16,9 @@ export interface ISchemaFieldExport {
     /** 배열 여부 */
     isArray: boolean;
 
+    /** 아이디 여부 */
+    isId: boolean;
+
     /** 필수 여부 */
     isRequired: boolean;
 }

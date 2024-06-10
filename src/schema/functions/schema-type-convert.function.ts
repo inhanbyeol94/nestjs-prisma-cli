@@ -1,9 +1,12 @@
-export function schemaTypeConvert(type: string) {
+export function schemaTypeConvert(type: string, isArray: boolean) {
     switch (type) {
         case "String":
-            return { request: "string", response: "string", prisma: type, swagger: "String" };
-        case "String[]":
-            return { request: "string[]", response: "string[]", prisma: type, swagger: "[String]" };
+            return {
+                request: !isArray ? "string" : "string[]",
+                response: !isArray ? "string" : "string[]",
+                prisma: !isArray ? type : `${type}[]`,
+                swagger: !isArray ? "String" : "[String]",
+            };
         case "Int":
             return { request: "number", response: "number", prisma: type, swagger: "Number" };
         case "Boolean":

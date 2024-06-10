@@ -36,9 +36,17 @@ export class SchemaFactory {
         this.modelNameList = this.modelNameList.filter(Boolean);
     }
 
-    export(schemaFile: string) {
+    export(schemaFile: string): ISchemaExport {
         /** 변수 영역 */
         const exportFields: ISchemaFieldExport[] = [];
+
+        const isInfoPathValid = fs.existsSync(`${this.schemaInfoModelPath}/${schemaFile}`);
+        const isDefaultPathValid = fs.existsSync(`${this.schemaModelPath}/${schemaFile}`);
+
+        /** 스키마 파일 없음 */
+        if (!isInfoPathValid && !isDefaultPathValid)
+            throw new Error(chalk.red(`The file ${schemaFile} does not exist, Are the file name and model name the same? (example.prisma -> model Example { ... })`));
+
         const schema = fs.existsSync(`${this.schemaModelPath}/${schemaFile}`)
             ? fs.readFileSync(`${this.schemaModelPath}/${schemaFile}`, "utf-8")
             : fs.readFileSync(`${this.schemaInfoModelPath}/${schemaFile}`, "utf-8");
@@ -67,9 +75,10 @@ export class SchemaFactory {
                 if (!this.modelNameList.includes(fieldMatch[2])) {
                     exportFields.push({
                         name: fieldMatch[1],
-                        type: schemaTypeConvert(fieldMatch[2]),
-                        isArray: fieldMatch[2].includes("[]"),
+                        type: schemaTypeConvert(fieldMatch[2], fieldMatch[3]?.includes("[]") ?? false),
+                        isArray: fieldMatch[3]?.includes("[]") ?? false,
                         isRequired: !fieldMatch[4],
+                        isId: fieldMatch[5]?.includes("@id"),
                         description: fieldMatch[6],
                     });
                 } else {
@@ -85,6 +94,7 @@ export class SchemaFactory {
         return {
             name: modelNameMatch[1],
             description: modelDescriptionMatch[1],
+            isDeletedAt: exportFields.some(field => field.name === "deletedAt"),
             fields: exportFields,
         };
     }

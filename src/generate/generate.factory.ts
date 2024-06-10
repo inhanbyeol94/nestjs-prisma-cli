@@ -5,21 +5,23 @@ import { endLog } from "../_global/functions/end-log.function";
 import { SchemaFactory } from "../schema/schema.factory";
 import { command as mainCommand } from "../main";
 import { ModelFactory } from "../model/model.factory";
+import { RepositoryFactory } from "../repository/repository.factory";
 
 export class GenerateFactory {
-    private readonly layer: string[] = ["model"];
+    private readonly layer: string[] = ["model", "repository"];
 
     private processing(command: ICommand) {
         const ignoreOptions = command.args?.filter(arg => !arg.startsWith("--"));
         command.options = command.args?.filter(arg => arg.startsWith("--"));
         command.layer = ignoreOptions ? ignoreOptions[0] : null;
         command.name = ignoreOptions ? ignoreOptions[1] : null;
+        command.name ? (command.schemaFileName = `${command.name}.prisma`) : null;
         return command;
     }
 
     constructor(
-        private schemaFactory: SchemaFactory,
         private modelFactory: ModelFactory,
+        private repositoryFactory: RepositoryFactory,
     ) {
         const command = this.processing(mainCommand);
 
@@ -37,10 +39,16 @@ export class GenerateFactory {
             return;
         }
 
+        this.switch(command);
+    }
+
+    switch(command: ICommand) {
         switch (command.layer) {
             case "model":
                 this.modelFactory.responseCreate();
                 break;
+            case "repository":
+                this.repositoryFactory.create(command);
             default:
                 break;
         }

@@ -1,8 +1,8 @@
 import chalk from "chalk";
 import fs from "node:fs";
-import { SchemaFactory } from "../schema/schema.factory";
-import { ISchemaExport } from "../schema/interfaces/schema-export.interface";
-import { pascalToKebabCase } from "../_global/functions/pascal-to-kebab-case.function";
+import { SchemaFactory } from "../../schema/schema.factory";
+import { ISchemaExport } from "../../schema/interfaces/schema-export.interface";
+import { pascalToKebabCase } from "../../_global/functions/pascal-to-kebab-case.function";
 
 export class ModelFactory {
     private readonly modelPath = `${process.cwd()}/src/_common/_utils/models`;

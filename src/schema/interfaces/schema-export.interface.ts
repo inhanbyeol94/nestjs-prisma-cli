@@ -1,4 +1,5 @@
 import { ISchemaFieldExport } from "./schema-field-export.interface";
+import { ISchemaJoinFieldExport } from "./schema-join-field-export.interface";
 
 export interface ISchemaExport {
     /** 모델명 */
@@ -11,6 +12,8 @@ export interface ISchemaExport {
     isDeletedAt: boolean;
 
     fields: ISchemaFieldExport[];
+
+    joins: ISchemaJoinFieldExport[];
 
     // joins?: {
     //     /** 조인 타입 */

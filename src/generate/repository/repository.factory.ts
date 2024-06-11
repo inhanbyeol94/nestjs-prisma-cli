@@ -1,11 +1,11 @@
-import { SchemaFactory } from "../schema/schema.factory";
-import { ICommand } from "../generate/interfaces/command.interface";
+import { SchemaFactory } from "../../schema/schema.factory";
+import { ICommand } from "../interfaces/command.interface";
 import chalk from "chalk";
 import fs from "node:fs";
-import { camelToKebabCase } from "../_global/functions/camel-to-kebab-case.function";
-import { ISchemaExport } from "../schema/interfaces/schema-export.interface";
-import { pascalToKebabCase } from "../_global/functions/pascal-to-kebab-case.function";
-import { camelToPascalCase } from "../_global/functions/camel-to-pascal-case.function";
+import { camelToKebabCase } from "../../_global/functions/camel-to-kebab-case.function";
+import { ISchemaExport } from "../../schema/interfaces/schema-export.interface";
+import { pascalToKebabCase } from "../../_global/functions/pascal-to-kebab-case.function";
+import { camelToPascalCase } from "../../_global/functions/camel-to-pascal-case.function";
 
 export class RepositoryFactory {
     constructor(private schemaFactory: SchemaFactory) {}

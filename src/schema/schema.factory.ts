@@ -4,6 +4,7 @@ import { ISchemaFieldExport } from "./interfaces/schema-field-export.interface";
 import chalk from "chalk";
 import { ISchemaExport } from "./interfaces/schema-export.interface";
 import * as process from "node:process";
+import { ISchemaJoinFieldExport } from "./interfaces/schema-join-field-export.interface";
 
 export class SchemaFactory {
     /** 스키마 파일 경로 */
@@ -39,6 +40,7 @@ export class SchemaFactory {
     export(schemaFile: string): ISchemaExport {
         /** 변수 영역 */
         const exportFields: ISchemaFieldExport[] = [];
+        const joinFields: ISchemaJoinFieldExport[] = [];
 
         const isInfoPathValid = fs.existsSync(`${this.schemaInfoModelPath}/${schemaFile}`);
         const isDefaultPathValid = fs.existsSync(`${this.schemaModelPath}/${schemaFile}`);
@@ -82,7 +84,13 @@ export class SchemaFactory {
                         description: fieldMatch[6],
                     });
                 } else {
-                    /** 조인 필드 */
+                    joinFields.push({
+                        name: fieldMatch[1],
+                        relationId: fieldMatch[5]?.match(/@relation\(fields: \[(.*?)\], references: \[.*?\]\)/)![1] || null,
+                        type: schemaTypeConvert(fieldMatch[2], fieldMatch[3]?.includes("[]") ?? false),
+                        isArray: fieldMatch[3]?.includes("[]") ?? false,
+                        description: fieldMatch[6],
+                    });
                 }
             } else {
                 throw new Error(
@@ -96,6 +104,7 @@ export class SchemaFactory {
             description: modelDescriptionMatch[1],
             isDeletedAt: exportFields.some(field => field.name === "deletedAt"),
             fields: exportFields,
+            joins: joinFields,
         };
     }
 

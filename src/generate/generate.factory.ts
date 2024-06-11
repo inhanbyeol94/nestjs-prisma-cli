@@ -4,11 +4,12 @@ import * as fs from "node:fs";
 import { endLog } from "../_global/functions/end-log.function";
 import { SchemaFactory } from "../schema/schema.factory";
 import { command as mainCommand } from "../main";
-import { ModelFactory } from "../model/model.factory";
-import { RepositoryFactory } from "../repository/repository.factory";
+import { ModelFactory } from "./model/model.factory";
+import { RepositoryFactory } from "./repository/repository.factory";
+import { InfoFactory } from "./info/info.factory";
 
 export class GenerateFactory {
-    private readonly layer: string[] = ["model", "repository"];
+    private readonly layer: string[] = ["model", "repository", "info"];
 
     private processing(command: ICommand) {
         const ignoreOptions = command.args?.filter(arg => !arg.startsWith("--"));
@@ -22,6 +23,7 @@ export class GenerateFactory {
     constructor(
         private modelFactory: ModelFactory,
         private repositoryFactory: RepositoryFactory,
+        private infoFactory: InfoFactory,
     ) {
         const command = this.processing(mainCommand);
 
@@ -49,6 +51,8 @@ export class GenerateFactory {
                 break;
             case "repository":
                 this.repositoryFactory.create(command);
+            case "info":
+                this.infoFactory.create();
             default:
                 break;
         }

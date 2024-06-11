@@ -157,10 +157,10 @@ export class InfoService {
             const isParam = schema.joins.filter(f => f.type.prisma.includes("Info")).filter(t => !t.isArray).length > 0;
 
             /** Request Dto Import */
-            importArray.push(`import { ${schema.name}FindManyDto } from "./dto/${schema.name.replace(".prisma", "-find-many.dto")}";`);
+            importArray.push(`import { ${schema.name}FindManyDto } from "./dto/${schemaFile.replace(".prisma", "-find-many.dto")}";`);
 
             /** Response Dto Import */
-            importArray.push(`import { ${schema.name}FindManyResponseDto } from "./dto/response/${schema.name.replace(".prisma", "-find-many.dto")}";`);
+            importArray.push(`import { ${schema.name}FindManyResponseDto } from "./dto/response/${schemaFile.replace(".prisma", "-find-many.dto")}";`);
 
             methodArray.push(`    @Get("${path}${
                 isParam
@@ -193,7 +193,7 @@ export class InfoService {
     `);
         });
 
-        return `import { Get } from "@nestjs/common";
+        return `import { Get, Param } from "@nestjs/common";
 import { InfoService } from "./info.service";
 import { ApiController, ApiInformation } from "@decorator/controller.decorator";
 ${importArray.join("\n").trim()}
@@ -232,7 +232,7 @@ export class ${schema.name}FindManyDto {${schema.joins
 
             return {
                 template: `import { ResponseDto } from "@dto/response.dto";
-import { PickType } from "@nestjs/swagger";
+import { OmitType } from "@nestjs/swagger";
 import { ResponseService } from "@type/response-service";
 import { InfoService } from "../../info.service";
 import { ${schema.name}Model } from "@model/${pascalToKebabCase(schema.name)}.model";
@@ -244,7 +244,7 @@ export class ${schema.name}FindManyResponseDto extends ResponseDto implements Re
 }
 
 /** Main Model */
-class ${schema.name}FindManyModel extends PickType(${schema.name}Model, []) ${
+class ${schema.name}FindManyModel extends OmitType(${schema.name}Model, []) ${
                     schema.joins.filter(x => x.type.prisma.includes("Info")).filter(t => !t.isArray).length > 0
                         ? `{
 ${schema.joins
@@ -261,7 +261,7 @@ ${schema.joins
                         ? `
 
 /** Include Model */
-${schema.joins.filter(x => x.type.prisma.includes("Info")).map(m => `class ${schema.name}FindManyWith${m.type.prisma}Model extends PickType(${m.type.prisma}Model, []) {}`)}
+${schema.joins.filter(x => x.type.prisma.includes("Info")).map(m => `class ${schema.name}FindManyWith${m.type.prisma}Model extends OmitType(${m.type.prisma}Model, []) {}`)}
 `
                         : ""
                 }`,

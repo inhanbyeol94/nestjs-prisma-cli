@@ -86,7 +86,9 @@ export class SchemaFactory {
                 } else {
                     joinFields.push({
                         name: fieldMatch[1],
-                        relationId: fieldMatch[5]?.match(/@relation\(fields: \[(.*?)\], references: \[.*?\]\)/)![1] || null,
+                        relationId: fieldMatch[5]?.match(/@relation\(fields: \[(.*?)\], references: \[.*?\]\)/)
+                            ? fieldMatch[5]?.match(/@relation\(fields: \[(.*?)\], references: \[.*?\]\)/)![1]
+                            : null,
                         type: schemaTypeConvert(fieldMatch[2], fieldMatch[3]?.includes("[]") ?? false),
                         isArray: fieldMatch[3]?.includes("[]") ?? false,
                         description: fieldMatch[6],

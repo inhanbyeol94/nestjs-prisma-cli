@@ -20,7 +20,15 @@ export class InfoFactory {
         if (!existsInfoPath) return console.error(chalk.red("The info module path does not exist."));
 
         const infoFiles = fs.readdirSync(`${process.cwd()}/prisma/schema/models/info`);
-        if (infoFiles.length === 0) return console.error(chalk.red("The info model does not exist."));
+        if (infoFiles.length !== 0) fs.rmSync(`${process.cwd()}/src/info`, { recursive: true });
+
+        /** 경로 생성 */
+        fs.mkdirSync(`${process.cwd()}/src/info`);
+        fs.mkdirSync(`${process.cwd()}/src/info/dto`);
+        fs.mkdirSync(`${process.cwd()}/src/info/dto/response`);
+
+        const module = this.moduleCreateTemplate();
+        fs.writeFileSync(`${process.cwd()}/src/info/info.module.ts`, module);
 
         const repository = this.repositoryCreateTemplate(infoFiles);
         fs.writeFileSync(`${process.cwd()}/src/info/info.repository.ts`, repository);
@@ -35,6 +43,20 @@ export class InfoFactory {
         this.responseDTOCreateTemplate(infoFiles).forEach(({ template, fileName }) => fs.writeFileSync(`${process.cwd()}/src/info/dto/response/${fileName}`, template));
 
         console.log(chalk.green(`Generate ${chalk.bold(`Info Module`)} Completed.`));
+    }
+
+    private moduleCreateTemplate() {
+        return `import { Module } from "@nestjs/common";
+import { InfoController } from "./info.controller";
+import { InfoService } from "./info.service";
+import { InfoRepository } from "./info.repository";
+
+@Module({
+    controllers: [InfoController],
+    providers: [InfoService, InfoRepository],
+})
+export class InfoModule {}
+`;
     }
 
     private repositoryCreateTemplate(schemaFiles: string[]) {

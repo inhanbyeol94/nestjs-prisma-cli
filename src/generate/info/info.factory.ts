@@ -162,23 +162,14 @@ export class InfoService {
             /** Response Dto Import */
             importArray.push(`import { ${schema.name}FindManyResponseDto } from "./dto/response/${schemaFile.replace(".prisma", "-find-many.dto")}";`);
 
-            methodArray.push(`    @Get("${path}${
-                isParam
-                    ? "/:" +
-                      schema.joins
-                          .filter(f => f.type.prisma.includes("Info"))
-                          .filter(t => !t.isArray)
-                          .map(m => m.relationId)
-                          .join("/:")
-                    : ""
-            }")
+            methodArray.push(`    @Get("${path}")
     @ApiInformation("${schema.description} 조회", false)
     async ${modelName}FindMany(${
         isParam
             ? schema.joins
                   .filter(f => f.type.prisma.includes("Info"))
                   .filter(x => !x.isArray)
-                  .map(m => `@Param() param: ${schema.name}FindManyDto`)
+                  .map(m => `@Query() query: ${schema.name}FindManyDto`)
             : ""
     }): Promise<${schema.name}FindManyResponseDto> {
         return await this.infoService.${modelName}FindMany(${
@@ -186,14 +177,14 @@ export class InfoService {
                 ? schema.joins
                       .filter(f => f.type.prisma.includes("Info"))
                       .filter(x => !x.isArray)
-                      .map(m => `param.${m.relationId}`)
+                      .map(m => `query.${m.relationId}`)
                 : ""
         });
     }
     `);
         });
 
-        return `import { Get, Param } from "@nestjs/common";
+        return `import { Get, Query } from "@nestjs/common";
 import { InfoService } from "./info.service";
 import { ApiController, ApiInformation } from "@decorator/controller.decorator";
 ${importArray.join("\n").trim()}

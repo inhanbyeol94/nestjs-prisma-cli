@@ -203,7 +203,7 @@ export class InfoService {
                 : ""
         });
     }
-    `);
+`);
         });
 
         return `import { Get, Query } from "@nestjs/common";

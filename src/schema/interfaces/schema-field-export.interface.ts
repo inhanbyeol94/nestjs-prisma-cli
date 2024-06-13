@@ -8,6 +8,7 @@ export interface ISchemaFieldExport {
         response: string;
         prisma: string;
         swagger: string;
+        validator: string;
     };
 
     /** 필드 설명 */
@@ -21,4 +22,19 @@ export interface ISchemaFieldExport {
 
     /** 필수 여부 */
     isRequired: boolean;
+
+    dtoOptions: {
+        default: {
+            create: "CREATE_REQUIRED" | "CREATE_OPTIONAL" | null;
+            update: "UPDATE" | null;
+            findUnique: "RESPONSE_EXPOSE" | null;
+            findList: "RESPONSE_EXPOSE" | null;
+        };
+        management: {
+            create: "CREATE_REQUIRED" | "CREATE_OPTIONAL" | null;
+            update: "UPDATE" | null;
+            findUnique: "RESPONSE_EXPOSE" | null;
+            findList: "RESPONSE_EXPOSE" | null;
+        };
+    };
 }

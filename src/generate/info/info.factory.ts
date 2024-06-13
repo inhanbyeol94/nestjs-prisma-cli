@@ -15,12 +15,11 @@ export class InfoFactory {
         const existsInfo = fs.existsSync(`${process.cwd()}/prisma/schema/models/info`);
         if (!existsInfo) return console.error(chalk.red("The info model does not exist."));
 
+        const infoFiles = fs.readdirSync(`${process.cwd()}/prisma/schema/models/info`);
+
         /** 경로 유효성 검증 */
         const existsInfoPath = fs.existsSync(`${process.cwd()}/src/info`);
-        if (!existsInfoPath) return console.error(chalk.red("The info module path does not exist."));
-
-        const infoFiles = fs.readdirSync(`${process.cwd()}/prisma/schema/models/info`);
-        if (infoFiles.length !== 0) fs.rmSync(`${process.cwd()}/src/info`, { recursive: true });
+        if (existsInfoPath) fs.rmSync(`${process.cwd()}/src/info`, { recursive: true });
 
         /** 경로 생성 */
         fs.mkdirSync(`${process.cwd()}/src/info`);
@@ -101,7 +100,6 @@ import { PrismaService } from "@common/prisma/prisma.service";
 
 @Injectable()
 export class InfoRepository {
-
     ${variableArray.join("\n    ")}
 
     constructor(private prisma: PrismaService) {}
@@ -110,12 +108,13 @@ export class InfoRepository {
         .map(method =>
             method
                 .split("\n")
-                .map(line => "    " + line)
+                .map(line => (line ? "    " + line : ""))
                 .join("\n"),
         )
         .join("\n")
         .trim()}
-}`;
+}
+`;
     }
     private serviceCreateTemplate(schemaFiles: string[]) {
         const methodArray: string[] = [];
@@ -137,7 +136,7 @@ export class InfoRepository {
                 .filter(Boolean)
                 .join();
 
-            methodArray.push(`/** ${schema.description} */
+            methodArray.push(`/** ${schema.description} 조회 */
 async ${pascalToCamelCase(modelName)}FindMany(${inputParameter}) {
     const ${pascalToCamelCase(modelName)} = await this.infoRepository.${pascalToCamelCase(modelName)}FindMany(${outputParameter});
     return getResponseData("${schema.description} 리소스 정상 반환", ${pascalToCamelCase(modelName)});
@@ -151,19 +150,19 @@ import { getResponseData } from "@function/response.function";
 
 @Injectable()
 export class InfoService {
-
     constructor(private infoRepository: InfoRepository) {}
-    
+
     ${methodArray
         .map(method =>
             method
                 .split("\n")
-                .map(line => "    " + line)
+                .map(line => (line ? "    " + line : ""))
                 .join("\n"),
         )
         .join("\n")
         .trim()}
-}`;
+}
+`;
     }
 
     private controllerCreateTemplate(schemaFiles: string[]) {

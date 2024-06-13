@@ -1,5 +1,5 @@
 import { SchemaFactory } from "../../schema/schema.factory";
-import { ICommand } from "../interfaces/command.interface";
+import { ICommand } from "../_interfaces/command.interface";
 import chalk from "chalk";
 import fs from "node:fs";
 import { camelToKebabCase } from "../../_global/functions/camel-to-kebab-case.function";
@@ -22,10 +22,13 @@ export class RepositoryFactory {
         const schema: ISchemaExport = this.schemaFactory.export(command.schemaFileName);
 
         /** 경로 추적 */
-        const path = this.findDir(command.name, `${process.cwd()}/src`) || `${process.cwd()}/src/${command.name}/`;
+        const path = this.findDir(command.name, `${process.cwd()}/src`) || `${process.cwd()}/src/${camelToKebabCase(command.name)}/`;
 
         /** 경로 검증 */
         if (!fs.existsSync(path)) fs.mkdirSync(path);
+
+        /** 파일 검증 */
+        if (fs.existsSync(`${path}${camelToKebabCase(command.name)}.repository.ts`)) fs.rmSync(`${path}${camelToKebabCase(command.name)}.repository.ts`);
 
         /** 파일 생성 */
         fs.writeFileSync(`${path}${camelToKebabCase(command.name)}.repository.ts`, this.template(command.name, schema));
@@ -36,7 +39,7 @@ export class RepositoryFactory {
 
     private template(name: string, schema: ISchemaExport): string {
         /** 변수 영역 */
-        const { className, variableName, typeName, prismaTypeName, prismaVariableName, prismaModelName } = this.convertName(name);
+        const { camelCase, camelCaseToManagementIgnore, pascalCaseToManagementIgnore, pascalCase, kebabCase } = this.convertName(name);
         const id = schema.fields.find(field => field.isId);
 
         return `import { Prisma } from "@prisma/client";
@@ -45,54 +48,52 @@ import { PrismaService } from "@common/prisma/prisma.service";
 import { getPaginationOption } from "@function/pagination.function";
 import { getMetadata } from "@function/metadata.function";
 import { ResourceNotFoundException } from "@exception/not-found.exception";
+import { I${pascalCase}FindList } from "./interfaces/${kebabCase}-find-list.interface";
 
 @Injectable()
-export class ${className}Repository {
-    private ${variableName}Repository = this.prisma.extendedClient.${prismaVariableName};
+export class ${pascalCase}Repository {
+    private ${camelCase}Repository = this.prisma.extendedClient.${camelCaseToManagementIgnore};
 
     constructor(private prisma: PrismaService) {}
 
     /** 생성 */
-    async create(data: Prisma.${prismaTypeName}CreateInput | Prisma.${prismaTypeName}UncheckedCreateInput) {
-        return this.${variableName}Repository.create({ data });
+    async create(data: Prisma.${pascalCaseToManagementIgnore}CreateInput | Prisma.${pascalCaseToManagementIgnore}UncheckedCreateInput) {
+        return this.${camelCase}Repository.create({ data });
     }
 
     /** 수정 */
-    async update(${id?.name}: ${id?.type.request}, data: Prisma.${prismaTypeName}UpdateInput | Prisma.${prismaTypeName}UncheckedUpdateInput) {
-        await this.findUniqueOrThrow(${id?.name});
-        return this.${variableName}Repository.update({ where: { ${id?.name} }, data });
+    async update(${id?.name}: ${id?.type.request}, data: Prisma.${pascalCaseToManagementIgnore}UpdateInput | Prisma.${pascalCaseToManagementIgnore}UncheckedUpdateInput) {
+        return this.${camelCase}Repository.update({ where: { ${id?.name} }, data });
     }
 
 ${
     schema.isDeletedAt
         ? `    /** 삭제 및 유효성 검증 */
     async softDelete(${id?.name}: ${id?.type.request}) {
-        await this.findUniqueOrThrow(${id?.name});
-        return this.${variableName}Repository.softDelete({ ${id?.name} });
+        return this.${camelCase}Repository.softDelete({ ${id?.name} });
     }`
         : `    /** 영구 삭제 및 유효성 검증 */
     async delete(${id?.name}: ${id?.type.request}) {
-        await this.findUniqueOrThrow(${id?.name});
-        return this.${variableName}Repository.delete({ where: { ${id?.name} } });
+        return this.${camelCase}Repository.delete({ where: { ${id?.name} } });
     }`
 }
 
     /** 단일 조회 및 유효성 검증 */
     async findUniqueOrThrow(${id?.name}: ${id?.type.request}) {
-        const resource = await this.${variableName}Repository.findUnique({ where: { ${id?.name} } });
+        const resource = await this.${camelCase}Repository.findUnique({ where: { ${id?.name} } });
         if (!resource) throw new ResourceNotFoundException("${schema.description}");
         return resource;
     }
 
     /** 전체 조회 */
     async findMany() {
-        return this.${variableName}Repository.findMany();
+        return this.${camelCase}Repository.findMany();
     }
 
     /** 목록 조회 */
-    async findList(data: I${typeName}FindList) {
-        const options = getPaginationOption(data, Prisma.ModelName.${prismaModelName});
-        const [resources, totalCount] = await this.prisma.$transaction([this.${variableName}Repository.findMany(options), this.${variableName}Repository.count({ where: options.where })]);
+    async findList(data: I${pascalCase}FindList) {
+        const options = getPaginationOption(data, Prisma.ModelName.${pascalCaseToManagementIgnore});
+        const [resources, totalCount] = await this.prisma.$transaction([this.${camelCase}Repository.findMany(options), this.${camelCase}Repository.count({ where: options.where })]);
         return { resources, meta: getMetadata(data, totalCount) };
     }
 }
@@ -115,13 +116,11 @@ ${
 
     private convertName(name: string) {
         return {
-            className: camelToPascalCase(name),
-            variableName: name,
-            fileName: camelToKebabCase(name),
-            typeName: camelToPascalCase(name),
-            prismaTypeName: camelToPascalCase(name).replace("Management", ""),
-            prismaModelName: camelToPascalCase(name).replace("Management", ""),
-            prismaVariableName: name.replace("Management", ""),
+            pascalCase: camelToPascalCase(name),
+            camelCase: name,
+            kebabCase: camelToKebabCase(name),
+            pascalCaseToManagementIgnore: camelToPascalCase(name).replace("Management", ""),
+            camelCaseToManagementIgnore: name.replace("Management", ""),
         };
     }
 }

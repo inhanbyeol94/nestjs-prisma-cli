@@ -1,4 +1,4 @@
-import { ICommand } from "./interfaces/command.interface";
+import { ICommand } from "./_interfaces/command.interface";
 import chalk from "chalk";
 import * as fs from "node:fs";
 import { endLog } from "../_global/functions/end-log.function";
@@ -7,9 +7,31 @@ import { command as mainCommand } from "../main";
 import { ModelFactory } from "./model/model.factory";
 import { RepositoryFactory } from "./repository/repository.factory";
 import { InfoFactory } from "./info/info.factory";
+import { ServiceFactory } from "./service/service.factory";
+import { ControllerFactory } from "./controller/controller.factory";
+import { ModuleFactory } from "./module/module.factory";
+import { InterfacesFactory } from "./interfaces/interfaces.factory";
+import { RequestDtoFactory } from "./request-dto/request-dto.factory";
+import { ResponseDtoFactory } from "./response-dto/response-dto.factory";
 
 export class GenerateFactory {
-    private readonly layer: string[] = ["model", "repository", "info"];
+    private readonly layer: string[] = [
+        "model",
+        "repository",
+        "repo",
+        "service",
+        "s",
+        "controller",
+        "co",
+        "module",
+        "mo",
+        "info",
+        "interfaces",
+        "requestDTO",
+        "responseDTO",
+        "package",
+        "p",
+    ];
 
     private processing(command: ICommand) {
         const ignoreOptions = command.args?.filter(arg => !arg.startsWith("--"));
@@ -23,7 +45,13 @@ export class GenerateFactory {
     constructor(
         private modelFactory: ModelFactory,
         private repositoryFactory: RepositoryFactory,
+        private serviceFactory: ServiceFactory,
+        private controllerFactory: ControllerFactory,
+        private moduleFactory: ModuleFactory,
         private infoFactory: InfoFactory,
+        private interfacesFactory: InterfacesFactory,
+        private requestDTOFactory: RequestDtoFactory,
+        private responseDTOFactory: ResponseDtoFactory,
     ) {
         const command = this.processing(mainCommand);
 
@@ -50,9 +78,43 @@ export class GenerateFactory {
                 this.modelFactory.responseCreate();
                 break;
             case "repository":
+            case "repo":
                 this.repositoryFactory.create(command);
+                break;
+            case "service":
+            case "s":
+                this.serviceFactory.create(command);
+                break;
+            case "controller":
+            case "co":
+                this.controllerFactory.create(command);
+                break;
+            case "module":
+            case "mo":
+                this.moduleFactory.create(command);
+                break;
             case "info":
                 this.infoFactory.create();
+                break;
+            case "interfaces":
+                this.interfacesFactory.create(command);
+                break;
+            case "requestDTO":
+                this.requestDTOFactory.create(command);
+                break;
+            case "responseDTO":
+                this.responseDTOFactory.create(command);
+                break;
+            case "package":
+            case "p":
+                this.moduleFactory.create(command);
+                this.controllerFactory.create(command);
+                this.serviceFactory.create(command);
+                this.repositoryFactory.create(command);
+                this.interfacesFactory.create(command);
+                this.requestDTOFactory.create(command);
+                this.responseDTOFactory.create(command);
+                break;
             default:
                 break;
         }

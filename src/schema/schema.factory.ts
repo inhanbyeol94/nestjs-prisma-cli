@@ -81,7 +81,32 @@ export class SchemaFactory {
                         isArray: fieldMatch[3]?.includes("[]") ?? false,
                         isRequired: !fieldMatch[4],
                         isId: fieldMatch[5]?.includes("@id"),
-                        description: fieldMatch[6],
+                        dtoOptions: {
+                            default: {
+                                create: fieldMatch[6].includes("#CR") ? "CREATE_REQUIRED" : fieldMatch[6].includes("#CO") ? "CREATE_OPTIONAL" : null,
+                                update: fieldMatch[6].includes("#U") ? "UPDATE" : null,
+                                findUnique: fieldMatch[6].includes("#FUE") ? "RESPONSE_EXPOSE" : null,
+                                findList: fieldMatch[6].includes("#FLE") ? "RESPONSE_EXPOSE" : null,
+                            },
+                            management: {
+                                create: fieldMatch[6].includes("#MCR") ? "CREATE_REQUIRED" : fieldMatch[6].includes("#MCO") ? "CREATE_OPTIONAL" : null,
+                                update: fieldMatch[6].includes("#MU") ? "UPDATE" : null,
+                                findUnique: fieldMatch[6].includes("#MFUE") ? "RESPONSE_EXPOSE" : null,
+                                findList: fieldMatch[6].includes("#MFLE") ? "RESPONSE_EXPOSE" : null,
+                            },
+                        },
+                        description: fieldMatch[6]
+                            .replace("#CR", "")
+                            .replace("#CO", "")
+                            .replace("#MCR", "")
+                            .replace("#MCO", "")
+                            .replace("#U", "")
+                            .replace("#MU", "")
+                            .replace("#FUE", "")
+                            .replace("#MFUE", "")
+                            .replace("#FLE", "")
+                            .replace("#MFLE", "")
+                            .trim(),
                     });
                 } else {
                     joinFields.push({

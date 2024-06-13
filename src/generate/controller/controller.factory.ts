@@ -92,7 +92,7 @@ ${
     }`
 }
 
-    @Get("${id?.name}")
+    @Get(":${id?.name}")
     @UseRoleGuard()
     @ApiInformation("${schema.description} 단일 조회", true)
     async findUnique(@Account() account: IPayload, @Param() param: ${pascalCase}FindUniqueDto): Promise<${pascalCase}FindUniqueResponseDto> {
@@ -134,9 +134,8 @@ ${
     }
 
     private apiPathConvert(kebabCase: string) {
-        if (kebabCase.includes("management")) {
-            return `/management/${this.pluralize(kebabCase.replace("-management", ""))}`;
-        }
+        if (kebabCase.includes("management")) return `management/${this.pluralize(kebabCase.replace("-management", ""))}`;
+        return `${this.pluralize(kebabCase)}`;
     }
 
     private pluralize(word: string) {

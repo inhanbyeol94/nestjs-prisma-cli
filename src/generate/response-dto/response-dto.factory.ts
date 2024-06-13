@@ -60,7 +60,10 @@ export class ResponseDtoFactory {
 import { ResponseService } from "@type/response-service";
 import { OmitType, PickType } from "@nestjs/swagger";
 import { ${pascalCase}Service } from "../../${kebabCase}.service";
-import { ${pascalCase}Model } from "@model/${kebabCase}.model";${schema.joins.map(j => `import { ${j?.type.prisma}Model } from "@model/${pascalToKebabCase(j.type?.prisma)}.model";`).join("\n")}
+import { ${pascalCase}Model } from "@model/${kebabCase}.model";${schema.joins.map(
+                j => `
+import { ${j?.type.prisma}Model } from "@model/${pascalToKebabCase(j.type?.prisma)}.model";`,
+            )}
 
 /** Response Dto */
 export class ${pascalCase}${camelToPascalCase(x.action)}ResponseDto extends ${x.ex} implements ResponseService<${pascalCase}Service["${x.action}"]> {
@@ -68,7 +71,7 @@ export class ${pascalCase}${camelToPascalCase(x.action)}ResponseDto extends ${x.
 }
 
 /** Model */
-class ${pascalCase}${camelToPascalCase(x.action)}Model extends ${x.action === "findList" ? "OmitType" : "PickType"}(${pascalCase}Model, [${["findList", "findUnique"].includes(x.action) ? schema.fields.filter(t => t?.dtoOptions[level][x.action as "findUnique" | "findList"] === "RESPONSE_EXPOSE").map(e => `"${e.name}"`) : ""})]) {}${
+class ${pascalCase}${camelToPascalCase(x.action)}Model extends OmitType(${pascalCase}Model, [${["findList", "findUnique"].includes(x.action) ? schema.fields.filter(t => t?.dtoOptions[level][x.action as "findUnique" | "findList"] === "RESPONSE_EXPOSE").map(e => `"${e.name}"`) : ""}]) {}${
                 schema.joins.length !== 0
                     ? `
 
@@ -80,8 +83,7 @@ ${schema.joins
     )
     .join("")}`
                     : ""
-            }
-`,
+            }`,
         }));
         return templates;
     }

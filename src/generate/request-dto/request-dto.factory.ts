@@ -66,7 +66,7 @@ export class RequestDtoFactory {
                         .map(
                             field => `    /** ${field.description} */
     @IsOptional()
-    @Is${field.type.validator}
+    @${field.type.validator}
     ${field.name}?: ${field.type.request};
 `,
                         ),
